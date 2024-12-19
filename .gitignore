@@ -1,162 +1,75 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+START
 
-# C extensions
-*.so
+DEFINE user_authentication
+    RECEIVE username, password
+    VALIDATE credentials
+    IF valid THEN
+        ALLOW access
+    ELSE
+        DISPLAY error
+        RETURN to login
+    END IF
+END DEFINE
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+DEFINE input_food_data
+    RECEIVE food_item_name, quantity, date, category
+    STORE data in food_inventory
+END DEFINE
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+DEFINE track_food_consumption
+    RECEIVE food_item_name, quantity_consumed, date
+    UPDATE food_inventory
+    CALCULATE remaining quantity
+    UPDATE consumption_history
+END DEFINE
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+DEFINE identify_food_waste
+    FOR each food_item in food_inventory
+        IF food_item.expiry_date < today
+            AND food_item.remaining_quantity > 0 THEN
+                ADD food_item to waste_list
+            END IF
+    END FOR
+END DEFINE
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+DEFINE suggest_recipes
+    FOR each food_item in food_inventory
+        IF food_item.remaining_quantity > threshold THEN
+            SEARCH recipe_database
+            IF recipe matches food_item THEN
+                DISPLAY suggested_recipe
+            END IF
+        END IF
+    END FOR
+END DEFINE
 
-# Translations
-*.mo
-*.pot
+DEFINE generate_reports
+    CALCULATE total food waste
+    DISPLAY food_waste_summary
+    DISPLAY trends and insights
+END DEFINE
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+MAIN PROGRAM
+    CALL user_authentication
+    IF access granted THEN
+        REPEAT
+            DISPLAY menu_options
+            SELECT option
+            IF option = "Add Food Data" THEN
+                CALL input_food_data
+            ELSE IF option = "Track Consumption" THEN
+                CALL track_food_consumption
+            ELSE IF option = "Identify Food Waste" THEN
+                CALL identify_food_waste
+            ELSE IF option = "Suggest Recipes" THEN
+                CALL suggest_recipes
+            ELSE IF option = "Generate Reports" THEN
+                CALL generate_reports
+            ELSE IF option = "Exit" THEN
+                BREAK
+            END IF
+        UNTIL option = "Exit"
+    END IF
+END MAIN PROGRAM
 
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+END
